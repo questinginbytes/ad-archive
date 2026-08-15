@@ -93,6 +93,38 @@ button{ font-family:inherit; background:none; border:none; cursor:pointer; color
   font-size:10px;
 }
 
+.gate{
+  position:fixed; inset:0; z-index:500;
+  background-color:var(--bg);
+  background-image:radial-gradient(circle, rgba(17,17,17,0.09) 1px, transparent 1px);
+  background-size:20px 20px;
+  display:flex; align-items:center; justify-content:center;
+}
+.gate.hidden{ display:none; }
+.gate-box{
+  border:2px solid var(--ink);
+  background:var(--surface);
+  padding:48px 40px;
+  display:flex; flex-direction:column; gap:16px;
+  width:280px;
+}
+.gate-title{
+  font-family:"Times New Roman", Times, serif;
+  font-size:22px; font-weight:700;
+  text-align:center;
+}
+.gate-input{
+  border:2px solid var(--ink);
+  padding:11px 13px;
+  font-size:14px; font-family:var(--font); letter-spacing:.03em;
+  background:var(--surface); color:var(--ink);
+}
+.gate-submit{ text-align:center; cursor:pointer; }
+.gate-error{
+  font-size:11px; letter-spacing:.04em; text-transform:uppercase; text-align:center;
+  color:var(--ink); min-height:14px;
+}
+
 .filter-banner{
   display:flex; align-items:center; gap:10px; flex-wrap:wrap;
   padding:14px 0; margin-bottom:36px;
@@ -197,6 +229,12 @@ button{ font-family:inherit; background:none; border:none; cursor:pointer; color
 .detail-values a:hover{ text-decoration:underline; }
 .detail-values .sep-comma{ color:var(--ink-soft); }
 
+.note-item{
+  margin-top:28px;
+  border:2px solid var(--ink);
+  padding:16px 18px;
+}
+
 .photo-grid{
   display:grid;
   grid-template-columns:repeat(4, 1fr);
@@ -250,6 +288,17 @@ button{ font-family:inherit; background:none; border:none; cursor:pointer; color
 </head>
 <body>
 
+<div class="gate" id="gate">
+  <div class="gate-box">
+    <div class="gate-title">AD ARCHIVE</div>
+    <input type="password" id="gateInput" class="gate-input" placeholder="Password" autocomplete="off">
+    <button class="chip gate-submit" id="gateSubmit">Enter</button>
+    <div class="gate-error" id="gateError"></div>
+  </div>
+</div>
+
+<div id="siteContent" style="display:none;">
+
 <div class="topbar">
   <div class="topbar-inner">
     <a class="brand" href="#/">AD ARCHIVE</a>
@@ -269,10 +318,11 @@ button{ font-family:inherit; background:none; border:none; cursor:pointer; color
   <img id="lightboxImg" src="" alt="">
 </div>
 
+</div>
+
 <script>
 
 const PROJECTS = [
-
   {
     id: "proj-001",
     title: "Fevikwik: Phenko Nahi, Jodo! - Kabadiwali TVC 2019",
@@ -285,6 +335,7 @@ const PROJECTS = [
       Location: "India",
       Category: "TVC"
     },
+    note: "Add your personal note here.",
     photos: [
       "ad-images/proj-001/frame_000002.png",
       "ad-images/proj-001/frame_000004.png",
@@ -299,7 +350,6 @@ const PROJECTS = [
       "ad-images/proj-001/frame_000028.png"
     ]
   },
-
   {
     id: "proj-002",
     title: "Make it a Tikkaaaaah!",
@@ -310,6 +360,7 @@ const PROJECTS = [
       Location: "India",
       Category: "TVC"
     },
+    note: "Add your personal note here.",
     photos: [
       "ad-images/proj-002/frame_000001.png",
       "ad-images/proj-002/frame_000002.png",
@@ -318,8 +369,7 @@ const PROJECTS = [
       "ad-images/proj-002/frame_000014.png"
     ]
   },
-
-    {
+  {
     id: "proj-003",
     title: "India Ke Daily Games",
     thumbnail: "ad-images/proj-003/frame_000058.png",
@@ -330,6 +380,7 @@ const PROJECTS = [
       Category: "Video",
       Credits: "Gayathri Gopan"
     },
+    note: "Add your personal note here.",
     photos: [
       "ad-images/proj-003/frame_000001.png",
       "ad-images/proj-003/frame_000002.png",
@@ -358,8 +409,7 @@ const PROJECTS = [
       "ad-images/proj-003/frame_000105.png"
     ]
   },
-
-    {
+  {
     id: "proj-004",
     title: "Let this be the summer you fall in love",
     thumbnail: "ad-images/proj-004/frame_000011.png",
@@ -369,6 +419,7 @@ const PROJECTS = [
       Location: "United States",
       Category: "Video"
     },
+    note: "Add your personal note here.",
     photos: [
       "ad-images/proj-004/frame_000004.png",
       "ad-images/proj-004/frame_000006.png",
@@ -391,8 +442,9 @@ const PROJECTS = [
       "ad-images/proj-004/frame_000056.png",
       "ad-images/proj-004/frame_000058.png"
     ]
-  },
+  }
 ];
+
 const app = document.getElementById("app");
 const crumb = document.getElementById("crumb");
 
@@ -443,7 +495,29 @@ function go(){
   renderHome();
 }
 window.addEventListener("hashchange", go);
-window.addEventListener("DOMContentLoaded", go);
+
+const gk = "thisisthepasswordsodontlook";
+function gd(s){
+  const p = [1,4,9,16,25];
+  return p.map(n => s[n-1]).join("");
+}
+const ga = gd(gk);
+
+function gateAttempt(){
+  const val = document.getElementById("gateInput").value;
+  if (val === ga){
+    document.getElementById("gate").classList.add("hidden");
+    document.getElementById("siteContent").style.display = "";
+    go();
+  } else {
+    document.getElementById("gateError").textContent = "Incorrect password";
+    document.getElementById("gateInput").value = "";
+    document.getElementById("gateInput").focus();
+  }
+}
+document.getElementById("gateSubmit").addEventListener("click", gateAttempt);
+document.getElementById("gateInput").addEventListener("keydown", e => { if (e.key === "Enter") gateAttempt(); });
+document.getElementById("gateInput").focus();
 
 function getAllCategories(){
   const keys = new Set();
@@ -571,6 +645,13 @@ function renderProject(id){
     </div>
   `).join("");
 
+  const noteItem = p.note ? `
+    <div class="detail-item note-item">
+      <span class="detail-label">Note</span>
+      <span class="detail-values">${escapeHtml(p.note)}</span>
+    </div>
+  ` : "";
+
   const photoTiles = p.photos.map((src, i) => `
     <div class="photo-tile">
       ${imgWithFallback(src, p.title + " — " + (i+1))}
@@ -584,7 +665,7 @@ function renderProject(id){
         <div class="project-title">${escapeHtml(p.title)}</div>
       </div>
     </div>
-    <div class="detail-row">${detailItems}</div>
+    <div class="detail-row">${detailItems}${noteItem}</div>
     <div class="photo-grid">${photoTiles}</div>
   `;
 
