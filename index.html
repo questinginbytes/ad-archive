@@ -107,6 +107,7 @@ button{ font-family:inherit; background:none; border:none; cursor:pointer; color
   grid-template-columns:repeat(3, 1fr);
   gap:16px;
   padding-bottom:64px;
+  align-items:start;
 }
 @media(max-width:900px){ .grid{ grid-template-columns:repeat(2,1fr); } }
 @media(max-width:560px){ .grid{ grid-template-columns:1fr; } }
@@ -268,6 +269,8 @@ const PROJECTS = [
       Year: "2019",
       Company: "PidiliteIndia",
       Brand: "Fevikwik",
+      Agency: "Ogilvy",
+      Location: "India",
       Category: "TVC"
     },
     photos: [
@@ -287,47 +290,24 @@ const PROJECTS = [
 
   {
     id: "proj-002",
-    title: "Winter Reserve",
-    thumbnail: "images/proj-002/thumb.jpg",
+    title: "Make it a Tikkaaaaah!",
+    thumbnail: "ad-images/proj-002/frame_000002.png",
     details: {
-      Year: "2023",
-      Company: "Absolut",
-      Agency: "TBWA",
-      Director: "Marcus Lin",
-      Photographer: "Alex Rivera",
-      Category: "Print"
+      Year: "2025",
+      Company: "Coca Cola",
+      Location: "India",
+      Category: "TVC"
     },
     photos: [
-      "images/proj-002/01.jpg",
-      "images/proj-002/02.jpg",
-      "images/proj-002/03.jpg",
-      "images/proj-002/04.jpg"
+      "ad-images/proj-002/frame_000001.png",
+      "ad-images/proj-002/frame_000002.png",
+      "ad-images/proj-002/frame_000005.png",
+      "ad-images/proj-002/frame_000010.png",
+      "ad-images/proj-002/frame_000012.png",
+      "ad-images/proj-002/frame_000014.png"
     ]
-  },
+  };
 
-  {
-    id: "proj-003",
-    title: "Open Road",
-    thumbnail: "images/proj-003/thumb.jpg",
-    details: {
-      Year: "2022",
-      Company: "Ford",
-      Agency: "Wieden+Kennedy",
-      Director: "Jane Smith, Marcus Lin",
-      Photographer: "Priya Nair",
-      Category: "Campaign"
-    },
-    photos: [
-      "images/proj-003/01.jpg",
-      "images/proj-003/02.jpg",
-      "images/proj-003/03.jpg",
-      "images/proj-003/04.jpg",
-      "images/proj-003/05.jpg",
-      "images/proj-003/06.jpg"
-    ]
-  }
-
-];
 
 const app = document.getElementById("app");
 const crumb = document.getElementById("crumb");
