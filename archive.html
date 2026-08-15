@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Archive</title>
+<style>
+
+:root{
+  --bg:        #f3f3f1;
+  --surface:   #ffffff;
+  --ink:       #111111;
+  --ink-soft:  #5a5a58;
+  --line:      #d8d8d5;
+  --line-soft: #e8e8e5;
+  --hover:     #111111;
+  --hover-ink: #ffffff;
+
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+
+  --gap: 2px;               
+  --max-width: 1400px;
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; }
+
+html,body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--font);
+  -webkit-font-smoothing:antialiased;
+}
+
+a{ color:inherit; text-decoration:none; }
+img{ display:block; max-width:100%; }
+button{ font-family:inherit; background:none; border:none; cursor:pointer; color:inherit; }
+
+::selection{ background:var(--ink); color:var(--hover-ink); }
+
+.shell{ max-width:var(--max-width); margin:0 auto; padding:0 24px; }
+
+.topbar{
+  position:sticky; top:0; z-index:50;
+  background:var(--bg);
+}
+.topbar-inner{
+  display:flex; align-items:baseline; justify-content:space-between;
+  padding:26px 24px;
+  max-width:var(--max-width); margin:0 auto;
+}
+.brand{
+  font-family:"Times New Roman", Times, serif;
+  font-size:19px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+}
+.brand span{ color:var(--ink-soft); font-weight:400; }
+.crumb{
+  font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft);
+  display:flex; align-items:center; gap:8px;
+}
+.crumb a:hover{ color:var(--ink); }
+.crumb .sep{ color:var(--line); }
+
+.index-top-space{ padding-top:56px; }
+
+.filter-banner{
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  padding:14px 0; margin-bottom:36px;
+  font-size:12px; letter-spacing:.04em; text-transform:uppercase; color:var(--ink-soft);
+}
+.filter-banner strong{ color:var(--ink); font-weight:700; }
+.filter-clear{
+  border:1px solid var(--ink); color:var(--ink);
+  padding:3px 9px; border-radius:20px; font-size:11px; letter-spacing:.06em; text-transform:uppercase;
+}
+.filter-clear:hover{ background:var(--ink); color:var(--hover-ink); }
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:16px;
+  padding-bottom:64px;
+}
+@media(max-width:900px){ .grid{ grid-template-columns:repeat(2,1fr); } }
+@media(max-width:560px){ .grid{ grid-template-columns:1fr; } }
+
+.card{
+  background:var(--surface);
+  display:block;
+  position:relative;
+}
+.card-frame{
+  background:#e2e2df;
+  position:relative;
+  display:flex;
+  align-items:center;
+  overflow:hidden;
+  border:1px solid var(--line);
+}
+.card-frame img{ width:100%; height:auto; display:block; transition:transform .5s ease; }
+.card:hover .card-frame img{ transform:scale(1.02); }
+
+.card-info{
+  padding:16px 10px 18px;
+}
+.card-title{ font-family:"Times New Roman", Times, serif; font-size:16px; font-weight:700; line-height:1.35; }
+.card-sub{
+  margin-top:5px; font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-soft);
+}
+
+.no-image{
+  width:100%; aspect-ratio:4/3;
+  display:flex; align-items:center; justify-content:center;
+  font-size:10px; letter-spacing:.05em; text-transform:uppercase; color:#a9a9a5;
+  background:
+    repeating-linear-gradient(45deg, #eaeae7, #eaeae7 8px, #e2e2df 8px, #e2e2df 16px);
+  text-align:center; padding:12px;
+}
+
+.empty{
+  padding:80px 20px; text-align:center; color:var(--ink-soft);
+  font-size:13px; letter-spacing:.04em;
+}
+
+.project-hero{
+  padding:56px 0 0;
+}
+.project-hero-frame{
+  width:100%; background:#e2e2df; display:flex;
+}
+.project-hero-frame img{ width:100%; height:auto; display:block; }
+
+.project-heading{
+  padding:36px 0 44px;
+}
+.project-title{ font-family:"Times New Roman", Times, serif; font-size:30px; font-weight:700; letter-spacing:-.01em; }
+
+.detail-row{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  padding:0 0 56px;
+  text-align:left;
+}
+.detail-item{
+  display:flex;
+  align-items:baseline;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.detail-label{
+  font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft);
+  width:140px;
+  flex-shrink:0;
+}
+.detail-values{ font-size:13px; color:var(--ink); }
+.detail-values a{ color:inherit; }
+.detail-values a:hover{ text-decoration:underline; }
+.detail-values .sep-comma{ color:var(--ink-soft); }
+
+.photo-grid{
+  display:grid;
+  grid-template-columns:repeat(4, 1fr);
+  gap:4px;
+  margin:0 0 80px;
+  align-items:start;
+}
+@media(max-width:900px){ .photo-grid{ grid-template-columns:repeat(2,1fr); } }
+@media(max-width:520px){ .photo-grid{ grid-template-columns:1fr; } }
+
+.photo-tile{
+  background:var(--surface);
+  overflow:hidden;
+  cursor:zoom-in;
+  display:flex;
+  border:1px solid var(--line);
+}
+.photo-tile img{ width:100%; height:auto; display:block; transition:transform .4s ease; }
+.photo-tile:hover img{ transform:scale(1.02); }
+
+.lightbox{
+  position:fixed; inset:0; background:rgba(10,10,10,.94);
+  display:none; align-items:center; justify-content:center;
+  z-index:200; padding:40px;
+}
+.lightbox.open{ display:flex; }
+.lightbox img{ max-width:100%; max-height:100%; object-fit:contain; }
+.lightbox-close{
+  position:absolute; top:22px; right:26px;
+  color:#fff; font-size:13px; letter-spacing:.08em; text-transform:uppercase;
+  border:1px solid rgba(255,255,255,.5); padding:6px 12px;
+}
+.lightbox-close:hover{ background:#fff; color:#111; }
+
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="#/">AD ARCHIVE</a>
+    <div class="crumb" id="crumb"></div>
+  </div>
+</div>
+
+<div class="shell" id="app"></div>
+
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightboxClose">Close ✕</button>
+  <img id="lightboxImg" src="" alt="">
+</div>
+
+<script>
+
+const PROJECTS = [
+
+  {
+    id: "proj-001",
+    title: "ad title",
+    thumbnail: "images/proj-001/thumb.jpg",
+    details: {
+      Year: "2023",
+      Company: "Nike",
+      Brand: "Air Max",
+      Agency: "if some agency made the ad",
+      Director: "Jane doe",
+      Photographer: "jane doe",
+      Category: "Campaign"
+    },
+    photos: [
+      "images/proj-001/01.jpg",
+      "images/proj-001/02.jpg",
+      "images/proj-001/03.jpg",
+      "images/proj-001/04.jpg",
+      "images/proj-001/05.jpg",
+      "images/proj-001/06.jpg",
+      "images/proj-001/07.jpg",
+      "images/proj-001/08.jpg"
+    ]
+  },
+
+  {
+    id: "proj-002",
+    title: "Winter",
+    thumbnail: "images/proj-002/thumb.jpg",
+    details: {
+      Year: "2023",
+      Company: "winter",
+      Agency: "winter",
+      Director: "Max",
+      Photographer: "Alexa",
+      Category: "campaign"
+    },
+    photos: [
+      "images/proj-002/01.jpg",
+      "images/proj-002/02.jpg",
+      "images/proj-002/03.jpg",
+      "images/proj-002/04.jpg"
+    ]
+  },
+
+  {
+    id: "proj-003",
+    title: "project",
+    thumbnail: "images/proj-003/thumb.jpg",
+    details: {
+      Year: "2022",
+      Company: "Fod",
+      Agency: "2fast2furious",
+      Director: "Jane doe",
+      Photographer: "jane doe",
+      Category: "Campaign"
+    },
+    photos: [
+      "images/proj-003/01.jpg",
+      "images/proj-003/02.jpg",
+      "images/proj-003/03.jpg",
+      "images/proj-003/04.jpg",
+      "images/proj-003/05.jpg",
+      "images/proj-003/06.jpg"
+    ]
+  }
+
+];
+
+const app = document.getElementById("app");
+const crumb = document.getElementById("crumb");
+
+function splitTag(value){
+  return String(value).split(",").map(s => s.trim()).filter(Boolean);
+}
+
+function imgWithFallback(src, alt, cls){
+  return `<img src="${src}" alt="${escapeHtml(alt)}" class="${cls||''}"
+    onerror="this.replaceWith(placeholderNode('${escapeAttr(alt)}'))">`;
+}
+
+function placeholderNode(label){
+  const div = document.createElement("div");
+  div.className = "no-image";
+  div.textContent = label || "image missing";
+  return div;
+}
+window.placeholderNode = placeholderNode;
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, m => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[m]));
+}
+function escapeAttr(str){ return escapeHtml(str).replace(/`/g,"&#96;"); }
+
+function parseHash(){
+  const raw = location.hash.replace(/^#\/?/, "");
+  const parts = raw.split("/").filter(Boolean).map(decodeURIComponent);
+  if (parts.length === 0) return { view:"home" };
+  if (parts[0] === "project" && parts[1]) return { view:"project", id:parts[1] };
+  if (parts[0] === "filter" && parts[1] && parts[2]) return { view:"filter", key:parts[1], value:parts[2] };
+  return { view:"home" };
+}
+
+function go(){
+  const route = parseHash();
+  window.scrollTo(0,0);
+  if (route.view === "home") return renderHome();
+  if (route.view === "filter") return renderHome(route.key, route.value);
+  if (route.view === "project") return renderProject(route.id);
+  renderHome();
+}
+window.addEventListener("hashchange", go);
+window.addEventListener("DOMContentLoaded", go);
+
+function renderHome(filterKey, filterValue){
+  let list = PROJECTS;
+  if (filterKey){
+    list = PROJECTS.filter(p => {
+      const raw = p.details[filterKey];
+      if (raw === undefined) return false;
+      return splitTag(raw).some(v => v.toLowerCase() === filterValue.toLowerCase());
+    });
+  }
+
+  crumb.innerHTML = filterKey
+    ? `<a href="#/">Index</a><span class="sep">/</span><span>${escapeHtml(filterKey)}: ${escapeHtml(filterValue)}</span>`
+    : "";
+
+  const banner = filterKey ? `
+    <div class="filter-banner">
+      <span>Filtered by <strong>${escapeHtml(filterKey)}: ${escapeHtml(filterValue)}</strong></span>
+      <a class="filter-clear" href="#/">Clear</a>
+    </div>` : "";
+
+  const cards = list.map((p) => `
+    <a class="card" href="#/project/${encodeURIComponent(p.id)}">
+      <div class="card-frame">
+        ${imgWithFallback(p.thumbnail, p.title)}
+      </div>
+      <div class="card-info">
+        <div class="card-title">${escapeHtml(p.title)}</div>
+        <div class="card-sub">${escapeHtml(summaryLine(p))}</div>
+      </div>
+    </a>
+  `).join("");
+
+  app.innerHTML = `
+    <div class="${filterKey ? "" : "index-top-space"}">
+      ${banner}
+      ${list.length ? `<div class="grid">${cards}</div>` : `<div class="empty">No projects match this filter.</div>`}
+    </div>
+  `;
+}
+
+function summaryLine(p){
+  const keys = Object.keys(p.details);
+  const picks = keys.slice(0,3).map(k => p.details[k]);
+  return picks.join(" · ");
+}
+
+function renderProject(id){
+  const p = PROJECTS.find(x => x.id === id);
+  if (!p){
+    app.innerHTML = `<div class="empty">Project not found.</div>`;
+    crumb.innerHTML = `<a href="#/">Index</a>`;
+    return;
+  }
+
+  crumb.innerHTML = `<a href="#/">Index</a><span class="sep">/</span><span>${escapeHtml(p.title)}</span>`;
+
+  const detailItems = Object.entries(p.details).map(([key, value]) => `
+    <div class="detail-item">
+      <span class="detail-label">${escapeHtml(key)}</span>
+      <span class="detail-values">${
+        splitTag(value).map(v =>
+          `<a href="#/filter/${encodeURIComponent(key)}/${encodeURIComponent(v)}">${escapeHtml(v)}</a>`
+        ).join('<span class="sep-comma">, </span>')
+      }</span>
+    </div>
+  `).join("");
+
+  const photoTiles = p.photos.map((src, i) => `
+    <div class="photo-tile" data-src="${escapeAttr(src)}" data-alt="${escapeAttr(p.title + " " + (i+1))}">
+      ${imgWithFallback(src, p.title + " — " + (i+1))}
+    </div>
+  `).join("");
+
+  app.innerHTML = `
+    <div class="project-hero">
+      <div class="project-hero-frame">${imgWithFallback(p.thumbnail, p.title)}</div>
+      <div class="project-heading">
+        <div class="project-title">${escapeHtml(p.title)}</div>
+      </div>
+    </div>
+    <div class="detail-row">${detailItems}</div>
+    <div class="photo-grid">${photoTiles}</div>
+  `;
+
+  app.querySelectorAll(".photo-tile").forEach(tile => {
+    tile.addEventListener("click", () => openLightbox(tile.dataset.src, tile.dataset.alt));
+  });
+}
+
+const lightbox = document.getElementById("lightbox");
+const lightboxImg = document.getElementById("lightboxImg");
+document.getElementById("lightboxClose").addEventListener("click", closeLightbox);
+lightbox.addEventListener("click", e => { if (e.target === lightbox) closeLightbox(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeLightbox(); });
+
+function openLightbox(src, alt){
+  lightboxImg.src = src;
+  lightboxImg.alt = alt || "";
+  lightbox.classList.add("open");
+}
+function closeLightbox(){
+  lightbox.classList.remove("open");
+  lightboxImg.src = "";
+}
+</script>
+</body>
+</html>
