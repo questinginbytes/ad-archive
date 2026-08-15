@@ -25,7 +25,9 @@
 *{ box-sizing:border-box; margin:0; padding:0; }
 
 html,body{
-  background:var(--bg);
+  background-color:var(--bg);
+  background-image:radial-gradient(circle, rgba(17,17,17,0.09) 1px, transparent 1px);
+  background-size:20px 20px;
   color:var(--ink);
   font-family:var(--font);
   -webkit-font-smoothing:antialiased;
@@ -71,17 +73,24 @@ button{ font-family:inherit; background:none; border:none; cursor:pointer; color
   padding:56px 0 28px;
 }
 .browse-list{
-  display:flex; flex-direction:column;
+  display:flex; flex-wrap:wrap; gap:12px;
   padding-bottom:64px;
 }
-.browse-row{
-  display:flex; align-items:baseline; justify-content:space-between;
-  padding:12px 0;
-  font-size:15px;
+
+.chip{
+  display:inline-flex; align-items:baseline; gap:6px;
+  border:2px solid var(--ink);
+  padding:9px 15px;
+  font-size:13px; font-weight:700; letter-spacing:.02em; text-transform:uppercase;
+  background:var(--surface); color:var(--ink);
 }
-.browse-row:hover{ text-decoration:underline; }
-.browse-count{
-  font-size:11px; color:var(--ink-soft); letter-spacing:.04em;
+.chip:hover{ background:var(--ink); color:var(--hover-ink); }
+.chip .chip-count{ font-weight:400; opacity:.6; }
+
+.chip.small{
+  border-width:1.5px;
+  padding:4px 9px;
+  font-size:10px;
 }
 
 .filter-banner{
@@ -91,8 +100,8 @@ button{ font-family:inherit; background:none; border:none; cursor:pointer; color
 }
 .filter-banner strong{ color:var(--ink); font-weight:700; }
 .filter-clear{
-  border:1px solid var(--ink); color:var(--ink);
-  padding:3px 9px; border-radius:20px; font-size:11px; letter-spacing:.06em; text-transform:uppercase;
+  border:2px solid var(--ink); color:var(--ink);
+  padding:8px 15px; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
 }
 .filter-clear:hover{ background:var(--ink); color:var(--hover-ink); }
 
@@ -116,6 +125,7 @@ button{ font-family:inherit; background:none; border:none; cursor:pointer; color
   background:var(--surface);
   display:block;
   position:relative;
+  border:2px solid var(--ink);
 }
 .card-frame{
   background:#e2e2df;
@@ -123,7 +133,6 @@ button{ font-family:inherit; background:none; border:none; cursor:pointer; color
   display:flex;
   align-items:center;
   overflow:hidden;
-  border:1px solid var(--line);
 }
 .card-frame img{ width:100%; height:auto; display:block; transition:transform .5s ease; }
 .card:hover .card-frame img{ transform:scale(1.02); }
@@ -132,8 +141,9 @@ button{ font-family:inherit; background:none; border:none; cursor:pointer; color
   padding:16px 10px 18px;
 }
 .card-title{ font-family:"Times New Roman", Times, serif; font-size:16px; font-weight:700; line-height:1.35; }
-.card-sub{
-  margin-top:5px; font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-soft);
+.card-tags{
+  display:flex; flex-wrap:wrap; gap:6px;
+  margin-top:10px;
 }
 
 .no-image{
@@ -155,6 +165,7 @@ button{ font-family:inherit; background:none; border:none; cursor:pointer; color
 }
 .project-hero-frame{
   width:100%; background:#e2e2df; display:flex;
+  border:2px solid var(--ink);
 }
 .project-hero-frame img{ width:100%; height:auto; display:block; }
 
@@ -195,13 +206,14 @@ button{ font-family:inherit; background:none; border:none; cursor:pointer; color
 }
 @media(max-width:900px){ .photo-grid{ grid-template-columns:repeat(2,1fr); } }
 @media(max-width:520px){ .photo-grid{ grid-template-columns:1fr; } }
+@media(max-width:560px){ .crumb{ display:none; } }
 
 .photo-tile{
   background:var(--surface);
   overflow:hidden;
   cursor:zoom-in;
   display:flex;
-  border:1px solid var(--line);
+  border:2px solid var(--ink);
 }
 .photo-tile img{ width:100%; height:auto; display:block; transition:transform .4s ease; }
 .photo-tile:hover img{ transform:scale(1.02); }
@@ -217,7 +229,7 @@ button{ font-family:inherit; background:none; border:none; cursor:pointer; color
   position:absolute; top:22px; right:26px;
   z-index:2;
   color:#fff; font-size:13px; letter-spacing:.08em; text-transform:uppercase;
-  border:1px solid rgba(255,255,255,.5); padding:6px 12px;
+  border:2px solid #fff; padding:6px 12px;
 }
 .lightbox-close:hover{ background:#fff; color:#111; }
 
@@ -381,8 +393,6 @@ const PROJECTS = [
     ]
   },
 ];
-
-
 const app = document.getElementById("app");
 const crumb = document.getElementById("crumb");
 
@@ -458,27 +468,36 @@ function getValuesForCategory(key){
 function renderFilterCategories(){
   crumb.innerHTML = `<a href="#/">Index</a><span class="sep">/</span><span>Filter</span>`;
   const categories = getAllCategories();
-  const rows = categories.map(key => `
-    <a class="browse-row" href="#/filter/${encodeURIComponent(key)}">${escapeHtml(key)}</a>
+  const chips = categories.map(key => `
+    <a class="chip" href="#/filter/${encodeURIComponent(key)}">${escapeHtml(key)}</a>
   `).join("");
   app.innerHTML = `
     <div class="browse-heading">Filter by</div>
-    <div class="browse-list">${rows}</div>
+    <div class="browse-list">${chips}</div>
   `;
 }
 
 function renderFilterValues(key){
   crumb.innerHTML = `<a href="#/">Index</a><span class="sep">/</span><a href="#/filter">Filter</a><span class="sep">/</span><span>${escapeHtml(key)}</span>`;
   const values = getValuesForCategory(key);
-  const rows = values.map(({value, count}) => `
-    <a class="browse-row" href="#/filter/${encodeURIComponent(key)}/${encodeURIComponent(value)}">
-      ${escapeHtml(value)}<span class="browse-count">${count}</span>
+  const chips = values.map(({value, count}) => `
+    <a class="chip" href="#/filter/${encodeURIComponent(key)}/${encodeURIComponent(value)}">
+      ${escapeHtml(value)}<span class="chip-count">${count}</span>
     </a>
   `).join("");
   app.innerHTML = `
     <div class="browse-heading">${escapeHtml(key)}</div>
-    ${values.length ? `<div class="browse-list">${rows}</div>` : `<div class="empty">No values found for this category.</div>`}
+    ${values.length ? `<div class="browse-list">${chips}</div>` : `<div class="empty">No values found for this category.</div>`}
   `;
+}
+
+function shuffle(arr){
+  const copy = arr.slice();
+  for (let i = copy.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
 }
 
 function renderHome(filterKey, filterValue){
@@ -490,6 +509,7 @@ function renderHome(filterKey, filterValue){
       return splitTag(raw).some(v => v.toLowerCase() === filterValue.toLowerCase());
     });
   }
+  list = shuffle(list);
 
   crumb.innerHTML = filterKey
     ? `<a href="#/">Index</a><span class="sep">/</span><a href="#/filter">Filter</a><span class="sep">/</span><a href="#/filter/${encodeURIComponent(filterKey)}">${escapeHtml(filterKey)}</a><span class="sep">/</span><span>${escapeHtml(filterValue)}</span>`
@@ -508,7 +528,7 @@ function renderHome(filterKey, filterValue){
       </div>
       <div class="card-info">
         <div class="card-title">${escapeHtml(p.title)}</div>
-        <div class="card-sub">${escapeHtml(summaryLine(p))}</div>
+        <div class="card-tags">${cardTagsHtml(p)}</div>
       </div>
     </a>
   `).join("");
@@ -521,10 +541,13 @@ function renderHome(filterKey, filterValue){
   `;
 }
 
-function summaryLine(p){
-  const keys = Object.keys(p.details);
-  const picks = keys.slice(0,3).map(k => p.details[k]);
-  return picks.join(" · ");
+function cardTagsHtml(p){
+  const values = Object.keys(p.details).map(k => splitTag(p.details[k])[0]).filter(Boolean);
+  const shown = values.slice(0,2);
+  const extra = values.length - shown.length;
+  const chips = shown.map(v => `<span class="chip small">${escapeHtml(v)}</span>`).join("");
+  const plus = extra > 0 ? `<span class="chip small">+${extra}</span>` : "";
+  return chips + plus;
 }
 
 function renderProject(id){
