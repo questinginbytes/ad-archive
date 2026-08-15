@@ -53,6 +53,9 @@ button{ font-family:inherit; background:none; border:none; cursor:pointer; color
   font-size:19px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
 }
 .brand span{ color:var(--ink-soft); font-weight:400; }
+.topbar-right{
+  display:flex; align-items:center; gap:16px;
+}
 .crumb{
   font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft);
   display:flex; align-items:center; gap:8px;
@@ -61,6 +64,25 @@ button{ font-family:inherit; background:none; border:none; cursor:pointer; color
 .crumb .sep{ color:var(--line); }
 
 .index-top-space{ padding-top:56px; }
+
+.browse-heading{
+  font-family:"Times New Roman", Times, serif;
+  font-size:28px; font-weight:700;
+  padding:56px 0 28px;
+}
+.browse-list{
+  display:flex; flex-direction:column;
+  padding-bottom:64px;
+}
+.browse-row{
+  display:flex; align-items:baseline; justify-content:space-between;
+  padding:12px 0;
+  font-size:15px;
+}
+.browse-row:hover{ text-decoration:underline; }
+.browse-count{
+  font-size:11px; color:var(--ink-soft); letter-spacing:.04em;
+}
 
 .filter-banner{
   display:flex; align-items:center; gap:10px; flex-wrap:wrap;
@@ -73,6 +95,12 @@ button{ font-family:inherit; background:none; border:none; cursor:pointer; color
   padding:3px 9px; border-radius:20px; font-size:11px; letter-spacing:.06em; text-transform:uppercase;
 }
 .filter-clear:hover{ background:var(--ink); color:var(--hover-ink); }
+
+.filter-link{
+  color:var(--ink);
+  font-size:12px; letter-spacing:.06em; text-transform:uppercase;
+}
+.filter-link:hover{ text-decoration:underline; }
 
 .grid{
   display:grid;
@@ -186,10 +214,24 @@ button{ font-family:inherit; background:none; border:none; cursor:pointer; color
 .lightbox img{ max-width:100%; max-height:100%; object-fit:contain; }
 .lightbox-close{
   position:absolute; top:22px; right:26px;
+  z-index:2;
   color:#fff; font-size:13px; letter-spacing:.08em; text-transform:uppercase;
   border:1px solid rgba(255,255,255,.5); padding:6px 12px;
 }
 .lightbox-close:hover{ background:#fff; color:#111; }
+
+.lightbox-nav{
+  position:absolute; top:0; bottom:0;
+  z-index:1;
+  display:flex; align-items:center;
+  width:90px;
+  color:#fff;
+  font-size:28px;
+  font-family:"Times New Roman", Times, serif;
+}
+.lightbox-nav:hover{ color:rgba(255,255,255,.6); }
+.lightbox-prev{ left:0; justify-content:flex-start; padding-left:22px; }
+.lightbox-next{ right:0; justify-content:flex-end; padding-right:22px; }
 
 </style>
 </head>
@@ -198,7 +240,10 @@ button{ font-family:inherit; background:none; border:none; cursor:pointer; color
 <div class="topbar">
   <div class="topbar-inner">
     <a class="brand" href="#/">AD ARCHIVE</a>
-    <div class="crumb" id="crumb"></div>
+    <div class="topbar-right">
+      <a class="filter-link" id="filterLink" href="#/filter">Filter</a>
+      <div class="crumb" id="crumb"></div>
+    </div>
   </div>
 </div>
 
@@ -206,6 +251,8 @@ button{ font-family:inherit; background:none; border:none; cursor:pointer; color
 
 <div class="lightbox" id="lightbox">
   <button class="lightbox-close" id="lightboxClose">Close ✕</button>
+  <button class="lightbox-nav lightbox-prev" id="lightboxPrev">‹</button>
+  <button class="lightbox-nav lightbox-next" id="lightboxNext">›</button>
   <img id="lightboxImg" src="" alt="">
 </div>
 
@@ -215,15 +262,15 @@ const PROJECTS = [
 
   {
     id: "proj-001",
-    title: "ad title",
+    title: "Air Max — Rebirth",
     thumbnail: "images/proj-001/thumb.jpg",
     details: {
       Year: "2023",
       Company: "Nike",
       Brand: "Air Max",
-      Agency: "if some agency made the ad",
-      Director: "Jane doe",
-      Photographer: "jane doe",
+      Agency: "Wieden+Kennedy",
+      Director: "Jane Smith",
+      Photographer: "Alex Rivera",
       Category: "Campaign"
     },
     photos: [
@@ -240,15 +287,15 @@ const PROJECTS = [
 
   {
     id: "proj-002",
-    title: "Winter",
+    title: "Winter Reserve",
     thumbnail: "images/proj-002/thumb.jpg",
     details: {
       Year: "2023",
-      Company: "winter",
-      Agency: "winter",
-      Director: "Max",
-      Photographer: "Alexa",
-      Category: "campaign"
+      Company: "Absolut",
+      Agency: "TBWA",
+      Director: "Marcus Lin",
+      Photographer: "Alex Rivera",
+      Category: "Print"
     },
     photos: [
       "images/proj-002/01.jpg",
@@ -260,14 +307,14 @@ const PROJECTS = [
 
   {
     id: "proj-003",
-    title: "project",
+    title: "Open Road",
     thumbnail: "images/proj-003/thumb.jpg",
     details: {
       Year: "2022",
-      Company: "Fod",
-      Agency: "2fast2furious",
-      Director: "Jane doe",
-      Photographer: "jane doe",
+      Company: "Ford",
+      Agency: "Wieden+Kennedy",
+      Director: "Jane Smith, Marcus Lin",
+      Photographer: "Priya Nair",
       Category: "Campaign"
     },
     photos: [
@@ -314,20 +361,71 @@ function parseHash(){
   const parts = raw.split("/").filter(Boolean).map(decodeURIComponent);
   if (parts.length === 0) return { view:"home" };
   if (parts[0] === "project" && parts[1]) return { view:"project", id:parts[1] };
-  if (parts[0] === "filter" && parts[1] && parts[2]) return { view:"filter", key:parts[1], value:parts[2] };
+  if (parts[0] === "filter" && parts[1] && parts[2]) return { view:"filterResults", key:parts[1], value:parts[2] };
+  if (parts[0] === "filter" && parts[1]) return { view:"filterValues", key:parts[1] };
+  if (parts[0] === "filter") return { view:"filterCategories" };
   return { view:"home" };
 }
 
 function go(){
   const route = parseHash();
   window.scrollTo(0,0);
+  document.getElementById("filterLink").style.display = (route.view === "home") ? "" : "none";
   if (route.view === "home") return renderHome();
-  if (route.view === "filter") return renderHome(route.key, route.value);
+  if (route.view === "filterResults") return renderHome(route.key, route.value);
+  if (route.view === "filterCategories") return renderFilterCategories();
+  if (route.view === "filterValues") return renderFilterValues(route.key);
   if (route.view === "project") return renderProject(route.id);
   renderHome();
 }
 window.addEventListener("hashchange", go);
 window.addEventListener("DOMContentLoaded", go);
+
+function getAllCategories(){
+  const keys = new Set();
+  PROJECTS.forEach(p => Object.keys(p.details).forEach(k => keys.add(k)));
+  return Array.from(keys).sort((a,b) => a.localeCompare(b));
+}
+
+function getValuesForCategory(key){
+  const map = new Map();
+  PROJECTS.forEach(p => {
+    const raw = p.details[key];
+    if (raw === undefined) return;
+    splitTag(raw).forEach(v => {
+      const lower = v.toLowerCase();
+      if (!map.has(lower)) map.set(lower, { value:v, count:0 });
+      map.get(lower).count++;
+    });
+  });
+  return Array.from(map.values()).sort((a,b) => a.value.localeCompare(b.value));
+}
+
+function renderFilterCategories(){
+  crumb.innerHTML = `<a href="#/">Index</a><span class="sep">/</span><span>Filter</span>`;
+  const categories = getAllCategories();
+  const rows = categories.map(key => `
+    <a class="browse-row" href="#/filter/${encodeURIComponent(key)}">${escapeHtml(key)}</a>
+  `).join("");
+  app.innerHTML = `
+    <div class="browse-heading">Filter by</div>
+    <div class="browse-list">${rows}</div>
+  `;
+}
+
+function renderFilterValues(key){
+  crumb.innerHTML = `<a href="#/">Index</a><span class="sep">/</span><a href="#/filter">Filter</a><span class="sep">/</span><span>${escapeHtml(key)}</span>`;
+  const values = getValuesForCategory(key);
+  const rows = values.map(({value, count}) => `
+    <a class="browse-row" href="#/filter/${encodeURIComponent(key)}/${encodeURIComponent(value)}">
+      ${escapeHtml(value)}<span class="browse-count">${count}</span>
+    </a>
+  `).join("");
+  app.innerHTML = `
+    <div class="browse-heading">${escapeHtml(key)}</div>
+    ${values.length ? `<div class="browse-list">${rows}</div>` : `<div class="empty">No values found for this category.</div>`}
+  `;
+}
 
 function renderHome(filterKey, filterValue){
   let list = PROJECTS;
@@ -340,7 +438,7 @@ function renderHome(filterKey, filterValue){
   }
 
   crumb.innerHTML = filterKey
-    ? `<a href="#/">Index</a><span class="sep">/</span><span>${escapeHtml(filterKey)}: ${escapeHtml(filterValue)}</span>`
+    ? `<a href="#/">Index</a><span class="sep">/</span><a href="#/filter">Filter</a><span class="sep">/</span><a href="#/filter/${encodeURIComponent(filterKey)}">${escapeHtml(filterKey)}</a><span class="sep">/</span><span>${escapeHtml(filterValue)}</span>`
     : "";
 
   const banner = filterKey ? `
@@ -397,7 +495,7 @@ function renderProject(id){
   `).join("");
 
   const photoTiles = p.photos.map((src, i) => `
-    <div class="photo-tile" data-src="${escapeAttr(src)}" data-alt="${escapeAttr(p.title + " " + (i+1))}">
+    <div class="photo-tile">
       ${imgWithFallback(src, p.title + " — " + (i+1))}
     </div>
   `).join("");
@@ -413,21 +511,39 @@ function renderProject(id){
     <div class="photo-grid">${photoTiles}</div>
   `;
 
-  app.querySelectorAll(".photo-tile").forEach(tile => {
-    tile.addEventListener("click", () => openLightbox(tile.dataset.src, tile.dataset.alt));
+  app.querySelectorAll(".photo-tile").forEach((tile, i) => {
+    tile.addEventListener("click", () => openLightbox(p.photos, i, p.title));
   });
 }
 
 const lightbox = document.getElementById("lightbox");
 const lightboxImg = document.getElementById("lightboxImg");
-document.getElementById("lightboxClose").addEventListener("click", closeLightbox);
-lightbox.addEventListener("click", e => { if (e.target === lightbox) closeLightbox(); });
-document.addEventListener("keydown", e => { if (e.key === "Escape") closeLightbox(); });
+let lightboxPhotos = [];
+let lightboxIndex = -1;
+let lightboxTitle = "";
 
-function openLightbox(src, alt){
-  lightboxImg.src = src;
-  lightboxImg.alt = alt || "";
+document.getElementById("lightboxClose").addEventListener("click", closeLightbox);
+document.getElementById("lightboxPrev").addEventListener("click", e => { e.stopPropagation(); showLightboxIndex(lightboxIndex - 1); });
+document.getElementById("lightboxNext").addEventListener("click", e => { e.stopPropagation(); showLightboxIndex(lightboxIndex + 1); });
+lightbox.addEventListener("click", e => { if (e.target === lightbox) closeLightbox(); });
+document.addEventListener("keydown", e => {
+  if (!lightbox.classList.contains("open")) return;
+  if (e.key === "Escape") closeLightbox();
+  if (e.key === "ArrowLeft") showLightboxIndex(lightboxIndex - 1);
+  if (e.key === "ArrowRight") showLightboxIndex(lightboxIndex + 1);
+});
+
+function openLightbox(photos, index, title){
+  lightboxPhotos = photos;
+  lightboxTitle = title || "";
+  showLightboxIndex(index);
   lightbox.classList.add("open");
+}
+function showLightboxIndex(index){
+  if (!lightboxPhotos.length) return;
+  lightboxIndex = (index + lightboxPhotos.length) % lightboxPhotos.length;
+  lightboxImg.src = lightboxPhotos[lightboxIndex];
+  lightboxImg.alt = lightboxTitle + " — " + (lightboxIndex + 1);
 }
 function closeLightbox(){
   lightbox.classList.remove("open");
